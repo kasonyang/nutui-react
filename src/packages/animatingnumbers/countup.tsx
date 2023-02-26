@@ -2,6 +2,7 @@ import React, {
   CSSProperties,
   FunctionComponent,
   useEffect,
+  useMemo,
   useRef,
 } from 'react'
 
@@ -39,7 +40,6 @@ export const CountUp: FunctionComponent<Partial<CountUpProps>> = (props) => {
   }
   const b = bem('countup')
   const countupRef = useRef<HTMLDivElement>(null)
-  const timerRef = useRef(0)
   const numbers = Array.from({ length: 10 }, (v, i) => i)
 
   const getShowNumber = () => {
@@ -54,7 +54,7 @@ export const CountUp: FunctionComponent<Partial<CountUpProps>> = (props) => {
     return currNumber.split('')
   }
 
-  const numerArr = getShowNumber()
+  const numerArr = useMemo(getShowNumber, [endNumber, maxLen, thousands])
 
   const setNumberTransform = () => {
     if (countupRef.current) {
@@ -82,17 +82,13 @@ export const CountUp: FunctionComponent<Partial<CountUpProps>> = (props) => {
   }
 
   useEffect(() => {
-    timerRef.current = window.setTimeout(() => {
+    const timer = window.setTimeout(() => {
       setNumberTransform()
     }, delaySpeed)
     return () => {
-      window.clearTimeout(timerRef.current)
+      window.clearTimeout(timer)
     }
-  }, [])
-
-  useEffect(() => {
-    setNumberTransform()
-  }, [numerArr])
+  }, [numerArr, delaySpeed])
 
   return (
     <div className={`${b()} ${className}`} ref={countupRef}>
